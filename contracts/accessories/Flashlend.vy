@@ -1,4 +1,4 @@
-# pragma version 0.4.2
+# pragma version 0.4.3
 # pragma nonreentrancy on
 from ethereum.ercs import IERC20
 
