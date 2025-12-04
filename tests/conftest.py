@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 from ape.contracts import ContractInstance, ContractMethodHandler
 
@@ -15,6 +17,21 @@ def other(accounts):
 @pytest.fixture(scope="session")
 def singleton(project, owner):
     return owner.deploy(project.Purse)
+
+
+@pytest.fixture(scope="session")
+def mocks():
+    from ape import Project
+
+    return Project(
+        Path(__file__).parent,
+        config_override=dict(contracts_folder="mocks"),
+    )
+
+
+@pytest.fixture(scope="session")
+def token(mocks, owner):
+    return owner.deploy(mocks.MockToken)
 
 
 @pytest.fixture()

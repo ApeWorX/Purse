@@ -10,7 +10,6 @@ readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
     "eth-ape>=0.8.32",
-    "snekmate>=0.0.1",
 ]
 
 [[project.authors]]
@@ -24,6 +23,14 @@ packages = ["purse"]
 
 [[tool.ape.plugins]]
 name = "vyper"
+[tool.ape.compile]
+exclude = [
+    "accessories/*.storageLayout.json",
+]
+
+[[tool.ape.dependencies]]
+pypi = "snekmate"
+version = "0.1.2"
 
 [[tool.ape.plugins]]
 name = "foundry"
