@@ -41,22 +41,29 @@ def sponsor(project, owner):
 @pytest.fixture(scope="session")
 def encode_accessory_data():
     def encode_accessory_data(
-        accessory: ContractInstance, *methods: str | ContractMethodHandler
+        *methods: str | ContractMethodHandler,
+        accessory: ContractInstance | None = None,
     ) -> list[dict]:
-        selectors = []
+        if accessory:
+            return [
+                dict(
+                    accessory=accessory,
+                    method=method,
+                )
+                for method in methods
+            ]
 
-        for method in methods:
-            if isinstance(method, ContractMethodHandler):
-                selectors.extend(abi.selector for abi in method.abis)
-            else:
-                selectors.append(method)
-
-        return [
-            dict(
-                accessory=accessory,
-                method=accessory.contract_type.method_identifiers.get(method_id),
-            )
-            for method_id in selectors
-        ]
+        else:
+            return [
+                dict(
+                    accessory=method.contract,
+                    method=method.contract.contract_type.method_identifiers.get(
+                        abi.selector
+                    ),
+                )
+                for method in methods
+                if not isinstance(method, str)
+                for abi in method.abis
+            ]
 
     return encode_accessory_data

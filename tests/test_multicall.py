@@ -8,12 +8,7 @@ def purse(singleton, owner, multicall, encode_accessory_data):
         singleton,
         # NOTE: Add multicall as an accessory at the same time
         data=singleton.update_accessories.encode_input(
-            encode_accessory_data(
-                # Accessory
-                multicall,
-                # Methods
-                multicall.execute,
-            )
+            encode_accessory_data(multicall.execute)
         ),
     ) as purse:
         yield purse
