@@ -9,9 +9,6 @@ def purse(singleton, owner, sponsor, encode_accessory_data):
         # NOTE: Add multicall as an accessory at the same time
         data=singleton.update_accessories.encode_input(
             encode_accessory_data(
-                # Accessory
-                sponsor,
-                # Methods
                 sponsor.sponsor_nonce,
                 sponsor.sponsor,
             )

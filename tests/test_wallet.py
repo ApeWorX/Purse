@@ -17,7 +17,7 @@ def test_can_transfer(purse, accounts):
 
 def test_add_rm_accessory(owner, purse, multicall, encode_accessory_data):
     # TODO: Add `.method_id(args_str)` to `ContractMethodHandler`
-    accessory_data = encode_accessory_data(multicall, multicall.execute)
+    accessory_data = encode_accessory_data(multicall.execute)
     method_id = accessory_data[0]["method"]
     assert purse.accessoryByMethodId(method_id) == ZERO_ADDRESS
 

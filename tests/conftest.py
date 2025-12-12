@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 from ape.contracts import ContractInstance, ContractMethodHandler
 
@@ -15,6 +17,21 @@ def other(accounts):
 @pytest.fixture(scope="session")
 def singleton(project, owner):
     return owner.deploy(project.Purse)
+
+
+@pytest.fixture(scope="session")
+def mocks():
+    from ape import Project
+
+    return Project(
+        Path(__file__).parent,
+        config_override=dict(contracts_folder="mocks"),
+    )
+
+
+@pytest.fixture(scope="session")
+def token(mocks, owner):
+    return owner.deploy(mocks.MockToken)
 
 
 @pytest.fixture()
@@ -41,22 +58,29 @@ def sponsor(project, owner):
 @pytest.fixture(scope="session")
 def encode_accessory_data():
     def encode_accessory_data(
-        accessory: ContractInstance, *methods: str | ContractMethodHandler
+        *methods: str | ContractMethodHandler,
+        accessory: ContractInstance | None = None,
     ) -> list[dict]:
-        selectors = []
+        if accessory:
+            return [
+                dict(
+                    accessory=accessory,
+                    method=method,
+                )
+                for method in methods
+            ]
 
-        for method in methods:
-            if isinstance(method, ContractMethodHandler):
-                selectors.extend(abi.selector for abi in method.abis)
-            else:
-                selectors.append(method)
-
-        return [
-            dict(
-                accessory=accessory,
-                method=accessory.contract_type.method_identifiers.get(method_id),
-            )
-            for method_id in selectors
-        ]
+        else:
+            return [
+                dict(
+                    accessory=method.contract,
+                    method=method.contract.contract_type.method_identifiers.get(
+                        abi.selector
+                    ),
+                )
+                for method in methods
+                if not isinstance(method, str)
+                for abi in method.abis
+            ]
 
     return encode_accessory_data

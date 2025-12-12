@@ -1,4 +1,4 @@
-# pragma version 0.4.2
+# pragma version 0.4.3
 
 # NOTE: Maximum possible `raw_create` initcode size
 MAX_CODE_SIZE: constant(uint16) = 41592
