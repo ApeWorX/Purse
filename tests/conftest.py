@@ -1,5 +1,6 @@
 import pytest
-from ape.contracts import ContractInstance, ContractMethodHandler
+
+from purse import Accessory, Purse
 
 
 @pytest.fixture(scope="session")
@@ -19,44 +20,34 @@ def singleton(project, owner):
 
 @pytest.fixture()
 def purse(singleton, owner):
-    with owner.delegate_to(singleton) as purse:
-        yield purse
-
-
-@pytest.fixture(scope="session")
-def multicall(project, owner):
-    return owner.deploy(project.Multicall)
+    # NOTE: Empty purse for testing purposes
+    return Purse.initialize(owner, singleton=singleton)
 
 
 @pytest.fixture(scope="session")
 def create2_deployer(project, owner):
-    return owner.deploy(project.Create)
+    return Accessory(owner.deploy(project.Create))
+
+
+@pytest.fixture(scope="session")
+def multicall(project, owner):
+    return Accessory(owner.deploy(project.Multicall))
 
 
 @pytest.fixture(scope="session")
 def sponsor(project, owner):
-    return owner.deploy(project.Sponsor)
+    return Accessory(owner.deploy(project.Sponsor))
 
 
 @pytest.fixture(scope="session")
-def encode_accessory_data():
-    def encode_accessory_data(
-        accessory: ContractInstance, *methods: str | ContractMethodHandler
-    ) -> list[dict]:
-        selectors = []
+def dummy(compilers, owner):
+    SRC = """# pragma version 0.4.1
+last_call: public(Bytes[2048])
 
-        for method in methods:
-            if isinstance(method, ContractMethodHandler):
-                selectors.extend(abi.selector for abi in method.abis)
-            else:
-                selectors.append(method)
-
-        return [
-            dict(
-                accessory=accessory,
-                method=accessory.contract_type.method_identifiers.get(method_id),
-            )
-            for method_id in selectors
-        ]
-
-    return encode_accessory_data
+@external
+@payable
+def __default__():
+    self.last_call = slice(msg.data, 0, 2048)
+    """
+    container = compilers.compile_source("vyper", SRC, contractName="Dummy")
+    return Accessory(container.deploy(sender=owner))
