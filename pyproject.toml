@@ -15,9 +15,12 @@ dependencies = [
 ]
 
 [dependency-groups]
+build = [
+    "ape-vyper>=0.8.9",
+]
 test = [
     "ape-foundry>=0.8.10",
-    "ape-vyper>=0.8.9",
+    {include-group = "build"},
 ]
 dev = [
     "ape-etherscan>=0.8.5",
