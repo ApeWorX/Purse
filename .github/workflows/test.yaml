@@ -15,7 +15,7 @@ jobs:
     steps:
     - uses: actions/checkout@v5
     - uses: astral-sh/setup-uv@v7
-    - run: uv venv && uv pip install --group test
-    - run: ape compile --size
+    - run: uv venv && uv sync --group test
+    - run: uv run ape compile --size
     - uses: foundry-rs/foundry-toolchain@v1
-    - run: ape test -s --gas --coverage
+    - run: uv run --group test ape test -s --gas --coverage
