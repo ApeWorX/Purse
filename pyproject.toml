@@ -7,7 +7,7 @@ name = "purse-py"
 dynamic = [ "version" ]
 description = "Purse: Personalize your Wallet"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
     "createx>=0.1.1",
     "eth-ape>=0.8.43",
