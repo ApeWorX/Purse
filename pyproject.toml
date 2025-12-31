@@ -16,7 +16,8 @@ dependencies = [
 
 [dependency-groups]
 build = [
-    "ape-vyper>=0.8.9",
+    # "ape-vyper>=0.8.9",
+    "git+https://github.com/ApeWorX/ape-vyper.git@fix/virtualenv-compile-issue-17974448966033745875"
 ]
 test = [
     "ape-foundry>=0.8.10",
