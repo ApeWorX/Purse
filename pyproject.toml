@@ -3,21 +3,39 @@ requires = ["setuptools", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "purse"
-dynamic = ["version"]
-description = "Purse: A Simple(r) Smart Wallet"
+name = "purse-py"
+dynamic = [ "version" ]
+description = "Purse: Personalize your Wallet"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 dependencies = [
-    "eth-ape>=0.8.32",
-    "snekmate>=0.0.1",
+    "createx>=0.1.1",
+    "eth-ape>=0.8.43",
+    "snekmate>=0.1.2",
+]
+
+[dependency-groups]
+build = [
+    "ape-vyper>=0.8.10",
+]
+test = [
+    "ape-foundry>=0.8.10",
+    {include-group = "build"},
+]
+dev = [
+    "ape-etherscan>=0.8.5",
+    {include-group = "test"},
 ]
 
 [[project.authors]]
 name = "ApeWorX LTD"
 
-[tool.setuptools]
-packages = ["purse"]
+[project.scripts]
+purse = "purse.__main__:cli"
+
+[tool.setuptools.packages.find]
+where = [ "sdk/py" ]
+include = [ "purse" ]
 
 [tool.setuptools_scm]
 # NOTE: Required for `setuptools-scm` to function

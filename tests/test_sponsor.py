@@ -1,37 +1,11 @@
 import pytest
-from ape import compilers
+
+from purse import Purse
 
 
 @pytest.fixture()
-def purse(singleton, owner, sponsor, encode_accessory_data):
-    with owner.delegate_to(
-        singleton,
-        # NOTE: Add multicall as an accessory at the same time
-        data=singleton.update_accessories.encode_input(
-            encode_accessory_data(
-                # Accessory
-                sponsor,
-                # Methods
-                sponsor.sponsor_nonce,
-                sponsor.sponsor,
-            )
-        ),
-    ) as purse:
-        yield purse
-
-
-@pytest.fixture(scope="module")
-def dummy(owner):
-    SRC = """# pragma version 0.4.1
-digest: public(bytes32)
-
-@external
-@payable
-def __default__():
-    self.digest = keccak256(slice(msg.data, 0, 2048))
-    """
-    container = compilers.compile_source("vyper", SRC, contractName="Dummy")
-    return container.deploy(sender=owner)
+def purse(singleton, owner, sponsor):
+    return Purse.initialize(owner, sponsor, singleton=singleton)
 
 
 def test_sponsor_plain_eth_transfer(purse, dummy, owner):

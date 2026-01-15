@@ -1,57 +1,41 @@
 import ape
 import pytest
 
+from purse import Purse
+
 
 @pytest.fixture()
-def purse(singleton, owner, multicall, encode_accessory_data):
-    with owner.delegate_to(
-        singleton,
-        # NOTE: Add multicall as an accessory at the same time
-        data=singleton.update_accessories.encode_input(
-            encode_accessory_data(
-                # Accessory
-                multicall,
-                # Methods
-                multicall.execute,
-            )
-        ),
-    ) as purse:
-        yield purse
+def purse(singleton, owner, multicall):
+    return Purse.initialize(owner, multicall, singleton=singleton)
 
 
-def test_empty_multicall(owner, purse, multicall):
-    purse(data=multicall.execute.encode_input([]), sender=owner)
+def test_empty_multicall(purse):
+    purse.execute([], sender=purse.wallet)
 
 
-def test_single_multicall(owner, purse, multicall, accounts):
+def test_single_multicall(purse, accounts):
     a = accounts[1]
     bal_a = a.balance
-    purse(
-        data=multicall.execute.encode_input(
-            [
-                dict(target=a, value="1 ether", data=b""),
-            ]
-        ),
-        sender=owner,
+    purse.execute(
+        [dict(target=a, value="1 ether", data=b"")],
+        sender=purse.wallet,
     )
     assert a.balance - bal_a == ape.convert("1 ether", int)
 
 
-def test_many_multicall(owner, purse, multicall, accounts):
+def test_many_multicall(purse, accounts):
     a, b, c = accounts[1:4]
     bal_a = a.balance
     bal_b = b.balance
     bal_c = c.balance
 
-    purse(
-        data=multicall.execute.encode_input(
-            [
-                dict(target=a, value="1 ether", data=b""),
-                dict(target=b, value="2 ether", data=b""),
-                dict(target=c, value="3 ether", data=b""),
-            ]
-        ),
-        sender=owner,
+    purse.execute(
+        [
+            dict(target=a, value="1 ether", data=b""),
+            dict(target=b, value="2 ether", data=b""),
+            dict(target=c, value="3 ether", data=b""),
+        ],
+        sender=purse.wallet,
     )
 
     assert a.balance - bal_a == ape.convert("1 ether", int)
@@ -59,16 +43,11 @@ def test_many_multicall(owner, purse, multicall, accounts):
     assert c.balance - bal_c == ape.convert("3 ether", int)
 
 
-def test_only_owner_can_multicall(purse, multicall, other):
+def test_only_owner_can_multicall(purse, other):
     assert purse.address != other.address
 
     with ape.reverts(message="Multicall:!authorize"):
-        tx = purse(
-            data=multicall.execute.encode_input(
-                [
-                    dict(target=other, value="1 ether", data=b""),
-                ]
-            ),
+        purse.execute(
+            [dict(target=other, value="1 ether", data=b"")],
             sender=other,
         )
-        tx.show_trace()
