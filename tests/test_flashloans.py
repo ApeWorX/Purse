@@ -14,7 +14,7 @@ def purse(singleton, owner, flashloan, flashlend):
 
 def test_flashloan(purse, token, other):
     assert token.allowance(purse, other) == 0
-    with ape.reverts("Flashloan:!authorized"):
+    with ape.reverts(expected_message="Flashloan:!authorized"):
         purse.onFlashLoan(purse, token, 1_000, 0, b"", sender=other)
     assert token.allowance(purse, other) == 0
 
@@ -43,7 +43,7 @@ def test_flashlend(purse, token, flash_receiver):
     assert purse.maxFlashLoan(token) == 0
     assert purse.flashFee(token, 1_000_000) == 0
 
-    with ape.reverts("Flashlend:!token-allowed"):
+    with ape.reverts(expected_message="Flashlend:!token-allowed"):
         purse.flashLoan(flash_receiver, token, token.balanceOf(purse) // 100, b"")
 
     purse.setFlashFee(token, 10_000)  # 10k mbps = 10 bps = 0.1%
