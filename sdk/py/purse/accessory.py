@@ -1,5 +1,6 @@
 import string
 from typing import TYPE_CHECKING, Any
+from ape.api.address import BaseAddress
 from ape.contracts import ContractInstance
 from ape.types import AddressType
 from ape.utils import ManagerAccessMixin
@@ -28,9 +29,9 @@ class AccessoryMethod(BaseModel):
         return int(self.accessory.lower().replace("0x", "") + self.method.hex(), 16)
 
 
-class Accessory(ManagerAccessMixin):
+class Accessory(BaseAddress, ManagerAccessMixin):
     def __init__(self, address: AddressType | ContractInstance, *purses: "Purse"):
-        self.address = self.conversion_manager.convert(address, AddressType)
+        self._address = self.conversion_manager.convert(address, AddressType)
 
         if isinstance(address, ContractInstance):
             self.contract = address
@@ -39,6 +40,10 @@ class Accessory(ManagerAccessMixin):
         self.purses: dict[AddressType, "Purse"] = {
             purse.address: purse for purse in purses
         }
+
+    @property
+    def address(self) -> AddressType:
+        return self._address
 
     # TODO: `Accessory.load_package_type(package: uri or PackageManifest, contract_name: str)`
 

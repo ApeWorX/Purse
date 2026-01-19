@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 
 from purse import Accessory, Purse
@@ -16,6 +18,21 @@ def other(accounts):
 @pytest.fixture(scope="session")
 def singleton(project, owner):
     return owner.deploy(project.Purse)
+
+
+@pytest.fixture(scope="session")
+def mocks():
+    from ape import Project
+
+    return Project(
+        Path(__file__).parent,
+        config_override=dict(contracts_folder="mocks"),
+    )
+
+
+@pytest.fixture(scope="session")
+def token(mocks, owner):
+    return owner.deploy(mocks.MockToken)
 
 
 @pytest.fixture()
@@ -37,6 +54,16 @@ def multicall(project, owner):
 @pytest.fixture(scope="session")
 def sponsor(project, owner):
     return Accessory(owner.deploy(project.Sponsor))
+
+
+@pytest.fixture(scope="module")
+def flashloan(project, owner):
+    return Accessory(owner.deploy(project.Flashloan))
+
+
+@pytest.fixture(scope="module")
+def flashlend(project, owner):
+    return Accessory(owner.deploy(project.Flashlend))
 
 
 @pytest.fixture(scope="session")

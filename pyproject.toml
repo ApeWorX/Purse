@@ -42,6 +42,14 @@ include = [ "purse" ]
 
 [[tool.ape.plugins]]
 name = "vyper"
+[tool.ape.compile]
+exclude = [
+    "accessories/*.storageLayout.json",
+]
+
+[[tool.ape.dependencies]]
+pypi = "snekmate"
+version = "0.1.2"
 
 [[tool.ape.plugins]]
 name = "foundry"

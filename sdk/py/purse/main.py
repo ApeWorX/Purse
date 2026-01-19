@@ -6,6 +6,7 @@ from typing_extensions import Self
 from ape.contracts import (
     ContractInstance,
 )
+from ape.api.address import BaseAddress
 from ape.contracts.base import (
     ContractCallHandler,
     ContractEvent,
@@ -19,11 +20,10 @@ from .package import MANIFEST
 
 if TYPE_CHECKING:
     from ape.api import AccountAPI
-    from ape.api.address import BaseAddress
     from ape.api.transactions import ReceiptAPI
 
 
-class Purse(ManagerAccessMixin):
+class Purse(BaseAddress, ManagerAccessMixin):
     def __init__(
         self,
         account: "AccountAPI | BaseAddress | AddressType",
@@ -31,7 +31,7 @@ class Purse(ManagerAccessMixin):
     ):
         from ape.api import AccountAPI
 
-        self.address = self.conversion_manager.convert(account, AddressType)
+        self._address = self.conversion_manager.convert(account, AddressType)
 
         if isinstance(account, AccountAPI):
             self.wallet = account
@@ -60,6 +60,10 @@ class Purse(ManagerAccessMixin):
         )
 
         return cls(account, *accessories)
+
+    @property
+    def address(self) -> AddressType:
+        return self._address
 
     @cached_property
     def wallet(self) -> "AccountAPI | None":
